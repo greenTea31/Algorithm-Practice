@@ -3,9 +3,9 @@ input = sys.stdin.readline
 
 
 def gcd(a, b):
-    if b == 0:
-        return a
-    return gcd(b, a % b)
+    while b > 0:
+        a, b = b, a % b
+    return a
 
 
 N = int(input())
@@ -30,9 +30,8 @@ if len(distance) >= 3:
 ans = 0
 
 for i in range(N-1):
-    cur = numbers[i]
-    while cur + temp < numbers[i+1]:
-        cur += temp
-        ans += 1
+    cur = numbers[i+1] - numbers[i]
+    cur //= temp
+    ans += (cur-1)
 
 print(ans)
