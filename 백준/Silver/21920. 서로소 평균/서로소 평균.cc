@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 using namespace std;
 
 int gcd(int a, int b) {
@@ -22,8 +21,7 @@ int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    vector<int> numbers;
-
+    int numbers[500001];
     double coprimesSum = 0;
     int coprimesCount = 0;
 
@@ -31,24 +29,22 @@ int main() {
     cin >> N;
 
     for (int i = 0; i < N; ++i) {
-        int num;
-        cin >> num;
-        numbers.push_back(num);
+        cin >> numbers[i];
     }
 
     int X;
     cin >> X;
 
-    for (int num : numbers) {
-        int coprime = gcd(num, X);
+    for (int i = 0; i < N; ++i) {
+        int coprime = gcd(numbers[i], X);
 
         if (coprime == 1) {
-            coprimesSum += num;
+            coprimesSum += numbers[i];
             coprimesCount++;
         }
     }
 
     cout << coprimesSum / coprimesCount;
-
+    
     return 0;
 }
