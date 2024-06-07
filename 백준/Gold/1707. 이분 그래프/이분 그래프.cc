@@ -1,86 +1,75 @@
-#include <stdio.h>
+#include <iostream>
+using namespace std;
 
-int K, V, E;
+struct NODE {
+    int node;
+    NODE* next;
+};
 
-typedef struct st
-{
-	int node;
-	struct st *next;
-}NODE;
+NODE HEAD[20005];
+NODE POOL[400010];
 
-NODE HEAD[20200];
-NODE POOL[202000 * 2];
 int pcnt;
+int check[20005];
 
-int check[20200];
+void make(int p, int c) { // p와 c를 연결함
+    NODE* nd = &POOL[pcnt++];
+    nd->node = c;
+    nd->next = HEAD[p].next;
+    HEAD[p].next = nd;
+}
 
-void init()
-{
-	pcnt = 0; /* 메모리 풀 초기화 */
+int DFS(int node, int color) {
+    check[node] = color;
+
+    for (NODE* p = HEAD[node].next; p ; p = p->next) {
+        if (check[p->node] == color) return 0;
+
+        if (!check[p->node]) {
+            if (!DFS(p->node, 3 - color)) return 0;
+        }
+    }
+
+    return 1;
+}
+
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
     
-	for (int i = 1; i <= V;i++) HEAD[i].next = 0, check[i] = 0;
-}
+    int K, V, E;
 
-void Make(int p, int c)
-{
-	NODE *nd = &POOL[pcnt++];
+    cin >> K;
 
-	nd->node = c;
+    for (int tc = 0; tc < K; tc++) {
+        pcnt = 0;
+        cin >> V >> E;
 
-	nd->next = HEAD[p].next;
-	HEAD[p].next = nd;
-}
+        for (int i = 1; i <= V; i++) {
+            check[i] = 0;
+            HEAD[i].next = nullptr;
+        }
 
-int DFS(int node, int color)
-{
-	check[node] = color;
+        for (int i = 0; i < E; i++) {
+            int p, c;
+            cin >> p >> c;
+            make(p, c);
+            make(c, p);
+        }
 
-	for (NODE *p = HEAD[node].next; p; p = p->next)
-	{
-		if (check[p->node] == color) return 0;
-		if (!check[p->node])
-		{
-        	/* 3 - 1 = 2 <-> 3 - 2 = 1 */
-			if (!DFS(p->node, 3 - color)) return 0;
-		}
-	}
+        bool isBipartite = true;
 
-	return 1;
-}
+        for (int i = 1; i <= V; i++) {
+            if (!check[i]) {
+                isBipartite = DFS(i, 1);
+                if (!isBipartite) break;
+            }
+        }
 
-int main(void)
-{
-	scanf("%d", &K);
+        if (isBipartite) cout << "YES\n";
+        else cout << "NO\n";
+    }
 
-	for (int tc = 1; tc <= K;tc++)
-	{
-		int flag;
-		scanf("%d %d", &V, &E);
-
-		init();
-
-		for (int i = 0; i < E;i++)
-		{
-			int p, c;
-
-			scanf("%d %d", &p, &c);
-			Make(p, c);
-			Make(c, p);
-		}
-
-		flag = 0;
-		for (int i = 1; i <= V;i++)
-		{
-			if (!check[i])
-			{
-				flag = DFS(i, 1);
-				if (!flag) break;
-			}
-		}
-
-		if (flag) printf("YES\n");
-		else printf("NO\n");
-	}
-
-	return 0;
+    return 0;
 }
