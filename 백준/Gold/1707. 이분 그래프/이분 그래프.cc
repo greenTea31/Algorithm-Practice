@@ -1,72 +1,86 @@
-#include <iostream>
-using namespace std;
+#include <stdio.h>
 
-struct NODE {
-    int node;
-    NODE* next;
-};
+int K, V, E;
 
-NODE HEAD[20005];
-NODE POOL[400010];
+typedef struct st
+{
+	int node;
+	struct st *next;
+}NODE;
 
+NODE HEAD[20200];
+NODE POOL[202000 * 2];
 int pcnt;
-int check[20005];
 
-void make(int p, int c) { // p와 c를 연결함
-    NODE* nd = &POOL[pcnt++];
-    nd->node = c;
-    nd->next = HEAD[p].next;
-    HEAD[p].next = nd;
+int check[20200];
+
+void init()
+{
+	pcnt = 0; /* 메모리 풀 초기화 */
+    
+	for (int i = 1; i <= V;i++) HEAD[i].next = 0, check[i] = 0;
 }
 
-int DFS(int node, int color) {
-    check[node] = color;
+void Make(int p, int c)
+{
+	NODE *nd = &POOL[pcnt++];
 
-    for (NODE* p = HEAD[node].next; p ; p = p->next) {
-        if (check[p->node] == color) return 0;
+	nd->node = c;
 
-        if (!check[p->node]) {
-            if (!DFS(p->node, 3 - color)) return 0;
-        }
-    }
-
-    return 1;
+	nd->next = HEAD[p].next;
+	HEAD[p].next = nd;
 }
 
+int DFS(int node, int color)
+{
+	check[node] = color;
 
-int main() {
-    int K, V, E;
+	for (NODE *p = HEAD[node].next; p; p = p->next)
+	{
+		if (check[p->node] == color) return 0;
+		if (!check[p->node])
+		{
+        	/* 3 - 1 = 2 <-> 3 - 2 = 1 */
+			if (!DFS(p->node, 3 - color)) return 0;
+		}
+	}
 
-    cin >> K;
+	return 1;
+}
 
-    for (int tc = 0; tc < K; tc++) {
-        pcnt = 0;
-        cin >> V >> E;
+int main(void)
+{
+	scanf("%d", &K);
 
-        for (int i = 1; i <= V; i++) {
-            check[i] = 0;
-            HEAD[i].next = nullptr;
-        }
+	for (int tc = 1; tc <= K;tc++)
+	{
+		int flag;
+		scanf("%d %d", &V, &E);
 
-        for (int i = 0; i < E; i++) {
-            int p, c;
-            cin >> p >> c;
-            make(p, c);
-            make(c, p);
-        }
+		init();
 
-        bool isBipartite = true;
+		for (int i = 0; i < E;i++)
+		{
+			int p, c;
 
-        for (int i = 1; i <= V; i++) {
-            if (!check[i]) {
-                isBipartite = DFS(i, 1);
-                if (!isBipartite) break;
-            }
-        }
+			scanf("%d %d", &p, &c);
+			Make(p, c);
+			Make(c, p);
+		}
 
-        if (isBipartite) cout << "YES\n";
-        else cout << "NO\n";
-    }
+		flag = 0;
+		for (int i = 1; i <= V;i++)
+		{
+			if (!check[i])
+			{
+				flag = DFS(i, 1);
+				if (!flag) break;
+			}
+		}
 
-    return 0;
+		if (flag) printf("YES\n");
+		else printf("NO\n");
+	}
+
+	return 0;
 }
